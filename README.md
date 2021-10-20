@@ -86,11 +86,12 @@ This quest consists of 4 different parts. Putting all 4 parts together we will h
 #### Part 5: Machine Learning
 In this part you will be containerizing and deploying a pretrained NLP (Natural Language Processing) model into AWS and expose it as a REST API. We have outlined one way of achieving this below, but feel free to do it your way using other AWS resources. We love to see how you achieve the same goal in other ways.
 
-0) Containerize the pretrained `Sentiment Analysis` [Transformer model by HuggingFace](https://huggingface.co/transformers/quicktour.html) using [Docker](https://www.docker.com/). Your container should expose a `/predict` endpoint which given a short text will return the model output. 
+0) Containerize the pretrained `Sentiment Analysis` [Transformer model by HuggingFace](https://huggingface.co/transformers/quicktour.html) using [Docker](https://www.docker.com/). Your container should expose a `/predict` endpoint which, when given a short text, will return the model output. 
 1) Push your docker image into AWS [ECR](https://aws.amazon.com/ecr/).
-2) create a Lambda function based on your docker image.
-3) Expose your lambda function through an AWS [API Gateway](https://aws.amazon.com/api-gateway/) resource as a REST API (keep your API public). Your REST API will have a `/predict` endpoint exposed.
-Bonus ) Expose a `/train` endpoint which lets the user fine tune the model with their own data. 
+2) Create a Lambda function based on your Docker image.
+3) Expose your Lambda function through an AWS [API Gateway](https://aws.amazon.com/api-gateway/) resource as a REST API (keep your API public). Your REST API will have a `/predict` endpoint exposed.
+
+**Bonus:** Expose a `/train` endpoint which lets the user fine tune the model with their own data. 
 
 #### Part 6: Infrastructure as Code & ML Pipeline with AWS CDK
 Integrate your ML pipeline into the IaC code you developed in part 4 to also automate steps in part 5.
