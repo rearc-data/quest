@@ -7,14 +7,17 @@ It is a fun way to assess your data skills. It is also a good representative sam
 * Data management / data engineering concepts.
 * Programming language (python, java, scala, etc).
 * AWS knowledge (Lambda, SQS, CloudWatch logs).
-* Infrastructure-as-code (Terraform, CloudFormation, etc)
+* Infrastructure-as-code (Terraform, CloudFormation, etc).
+* Machine Learning / MLOps
 
 ### Q. What do I have to do?
 This quest consists of 4 different parts. Putting all 4 parts together we will have a Data Pipeline architecture.
 - Part 1 and Part 2 will showcase your skills with data management, AWS concepts, and your overall data engineering skillset.
   The goal is to source data from different places and store it in-house.
 - Part 3 will showcase your data analytics skills. The goal is to find some interesting insights with data.
-- Lastly, Part 4 will put all the pieces together. The goal here is to showcase your experience with automation and AWS services.
+- Part 4 will put all the pieces together. The goal here is to showcase your experience with automation and AWS services.
+- Part 5 will deploy a pretrained machine learning model in AWS. The goal is to showcase your MLOps skills.
+- Part 6 integrates the ML model deployment you did in part 5 into the IAC code you already developed in part 4.
 
 #### Part 1: AWS S3 & Sourcing Datasets
 1) Republish [this open dataset](https://download.bls.gov/pub/time.series/pr/) in Amazon S3 and share with us a link.
@@ -73,13 +76,25 @@ This quest consists of 4 different parts. Putting all 4 parts together we will h
 
 4) Submit your analysis, your queries, and the outcome of the reports as a [.ipynb](https://fileinfo.com/extension/ipynb) file.
 
-#### Part 4: Infrastructure as Code & Data Pipeline with AWS CDK
+#### Part 4: Infrastructure as Code (IaC) & Data Pipeline with AWS CDK
 0) Using [AWS CloudFormation](https://aws.amazon.com/cloudformation/), [AWS CDK](https://aws.amazon.com/cdk/) or [Terraform](https://www.terraform.io/), create a data pipeline that will automate the steps above.
 1) The deployment should include a Lambda function that executes
    Part 1 and Part 2 (you can combine both in 1 lambda function). The lambda function will be scheduled to run daily.
 2) The deployment should include an SQS queue that will be populated every time the JSON file is written to S3. (Hint: [S3 - Notifications](https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html))
 3) For every message on the queue - execute a Lambda function that outputs the reports from Part 3 (just logging the results of the queries would be enough. No .ipynb is required).
 
+#### Part 5: Machine Learning
+In this part you will be containerizing and deploying a pretrained NLP (Natural Language Processing) model into AWS and expose it as a REST API. We have outlined one way of achieving this below, but feel free to do it your way using other AWS resources. We love to see how you achieve the same goal in other ways.
+
+0) Containerize the pretrained `Sentiment Analysis` [Transformer model by HuggingFace](https://huggingface.co/transformers/quicktour.html) using [Docker](https://www.docker.com/). Your container should expose a `/predict` endpoint which, when given a short text, will return the model output. 
+1) Push your docker image into AWS [ECR](https://aws.amazon.com/ecr/).
+2) Create a Lambda function based on your Docker image.
+3) Expose your Lambda function through an AWS [API Gateway](https://aws.amazon.com/api-gateway/) resource as a REST API (keep your API public). Your REST API will have a `/predict` endpoint exposed.
+
+**Bonus:** Expose a `/train` endpoint which lets the user fine tune the model with their own data. 
+
+#### Part 6: Infrastructure as Code & ML Pipeline with AWS CDK
+Integrate your ML pipeline into the IaC code you developed in part 4 to also automate steps in part 5.
 
 ### Q. Do I have to do all these?
 You can do as many as you like. We suspect though that once you start you won't be able to stop. It's addictive.
@@ -89,6 +104,8 @@ You can do as many as you like. We suspect though that once you start you won't 
 2) Source code (Step 2)
 2) Source code in .ipynb file format and results (Step 3)
 4) Source code of the data pipeline infrastructure (Step 4)
+5) Source code of your machine learning model deployment and sample calls to your public REST API that we can try out (Step 5)
+6) Source code of your ML pipeline infrastructure - this will be in the same file as your code for part 4 (Step 6)
 
 ### Q. What if I successfully complete all the steps?
 We have many more for you to solve as a member of the Rearc team!
