@@ -20,8 +20,8 @@ This quest consists of 4 different parts. Putting all 4 parts together we will h
 1. Republish [this open dataset](https://download.bls.gov/pub/time.series/pr/) in Amazon S3 and share with us a link.
     - You may run into 403 Forbidden errors as you test accessing this data. There is a way to comply with the BLS data access policies and re-gain access to fetch this data programatically - we have included some hints as to how to do this at the bottom of this README in the Q/A section.
 2. Script this process so the files in the S3 bucket are kept in sync with the source when data on the website is updated, added, or deleted.
-3. Don't rely on hard coded names - the script should be able to handle added or removed files.
-4. Ensure the script doesn't upload the same file more than once.
+    - Don't rely on hard coded names - the script should be able to handle added or removed files.
+    - Ensure the script doesn't upload the same file more than once.
 
 #### Part 2: APIs
 1. Create a script that will fetch data from [this API](https://datausa.io/api/data?drilldowns=Nation&measures=Population).
@@ -37,7 +37,7 @@ This quest consists of 4 different parts. Putting all 4 parts together we will h
                   etc).
 
 1. Using the dataframe from the population data API (Part 2),
-   generate the mean and the standard deviation of the US population across the years [2013, 2018] inclusive.
+   generate the mean and the standard deviation of the annual US population across the years [2013, 2018] inclusive.
 
 2. Using the dataframe from the time-series (Part 1),
    For every series_id, find the *best year*: the year with the max/largest sum of "value" for all quarters in that year. Generate a report with each series id, the best year for that series, and the summed value for that year.
@@ -97,7 +97,7 @@ We have many more for you to solve as a member of the Rearc team!
 ### Q. What if I fail?
 Do. Or do not. There is no fail.
 
-### Q. Can i share this quest with others?
+### Q. Can I share this quest with others?
 No.
 
 ### Q. How do I get around the 403 error when I try to fetch BLS data?
@@ -107,13 +107,13 @@ No.
 </details>
 <details>
 <summary>Hint 2</summary>
-  The text to note on the policy page is:
+  The policy page says:
 
 ```BLS also reserves the right to block robots that do not contain information that can be used to contact the owner. Blocking may occur in real time.```
 
-How can your programmatic access requests contain information that can let BLS contact you?
+How could you add information to your programmatic access requests to let BLS contact you?
 </details>
 <details>
 <summary>Hint 3</summary>
-  Adding a ```User-Agent``` header to your request will comply with the BLS data policies and allow you to keep accessing their data programmatically.
+  Adding a ```User-Agent``` header to your request with contact information will comply with the BLS data policies and allow you to keep accessing their data programmatically.
 </details>
