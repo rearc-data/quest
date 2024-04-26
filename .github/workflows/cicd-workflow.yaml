@@ -34,17 +34,17 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-east-1"
-      - name: CDK Synth
-        if: github.event_name == 'push' && github.event.pull_request.merged == false
-        uses: youyo/aws-cdk-github-actions@v2
-        with:
-          cdk_subcommand: "synth"
-          cdk_version: "1.16.2"
-          working_dir: "infra"
-        env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "us-east-1"
+      # - name: CDK Synth
+      #   if: github.event_name == 'push' && github.event.pull_request.merged == false
+      #   uses: youyo/aws-cdk-github-actions@v2
+      #   with:
+      #     cdk_subcommand: "synth"
+      #     cdk_version: "1.16.2"
+      #     working_dir: "infra"
+      #   env:
+      #     AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: "us-east-1"
       - name: CDK Diff
         if: github.event_name == 'push' && github.event.pull_request.merged == false
         uses: youyo/aws-cdk-github-actions@v2
