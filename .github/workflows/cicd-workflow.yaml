@@ -50,6 +50,7 @@ jobs:
         uses: youyo/aws-cdk-github-actions@v2
         with:
           cdk_subcommand: "diff"
+          cdk_stack: "RearcQuestStack"
           actions_comment: true
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
