@@ -147,13 +147,14 @@ class RearcQuestStack(Stack):
             handler="processing.handler",
             code=lambda_.Code.from_asset("lambda"),
             role=self.processing_role_lambda,
+            reserved_concurrent_executions=1
         )
 
         self.data_processing_lambda.add_event_source(
             lambda_event_sources.SqsEventSource(
                 queue=self.new_data_queue,
                 batch_size=1,
-                max_concurrency=1,
+                max_concurrency=2,
             )
         )
 

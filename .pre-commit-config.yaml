@@ -16,7 +16,7 @@ repos:
         args: [
           "--show-error-codes",
           # "--python-executable=/Users/admin/.pyenv/versions/3.11.9/envs/rearc-quest-3.11.9/bin/python",
-          "--python-executable=/usr/local/bin/python"
+          # "--python-executable=/usr/local/bin/python"
         ]
         additional_dependencies:
           - 'types-requests'
