@@ -49,11 +49,12 @@ jobs:
         run: |
           cdk diff --app="python3 ${PWD}/infra/stack.py" --progress=events &> >(tee cdk.log)
           cdk-notifier \
-          --owner ${{ env.GITHUB_OWNER }} \
-          --repo ${{ env.GITHUB_REPO }} \
+          --owner ${{ github.repository_owner }} \
+          --repo $(echo ${{ github.repository }} | cut -d'/' -f2) \
           --log-file ./cdk.log \
           --tag-id diff-to-main \
-          --pull-request-id ${{ env.PULL_REQUEST_ID }}
+          --pull-request-id ${{ github.event.pull_request.number }} \
+          --template extendedWithResources
       # - name: Echo CDK Diff
       #   run: |
       #     echo "data<<EOF" >> $GITHUB_OUTPUT
