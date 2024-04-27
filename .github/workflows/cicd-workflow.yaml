@@ -38,9 +38,9 @@ jobs:
         if: github.event_name == 'push' && github.event.pull_request.merged == false
         run: cdk synth --app="python3 ${PWD}/infra/stack.py"
       - name: CDK Diff
-        if: github.event_name == 'push' && github.event.pull_request.merged == false
-        run: cdk diff --app="python3 ${PWD}/infra/stack.py" 2>&1 >> $GITHUB_OUTPUT
         id: cdk_output
+        if: github.event_name == 'push' && github.event.pull_request.merged == false
+        run: cdk diff --app="python3 ${PWD}/infra/stack.py" 2>&1 2>&1 | tee output.log | echo "$(cat output.log)" >> $GITHUB_OUTPUT
       # - name: Echo CDK Diff
       #   run: |
       #     echo "data<<EOF" >> $GITHUB_OUTPUT
