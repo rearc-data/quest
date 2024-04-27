@@ -53,7 +53,6 @@ jobs:
           --repo $(echo ${{ github.repository }} | cut -d'/' -f2) \
           --log-file ./cdk.log \
           --tag-id diff-to-main \
-          --pull-request-id ${{ github.event.pull_request.number }} \
           --template extendedWithResources
       # - name: Echo CDK Diff
       #   run: |
