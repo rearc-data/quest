@@ -48,7 +48,7 @@ jobs:
         if: github.event_name == 'push' && github.event.pull_request.merged == false
         run: |
           cdk diff --app="python3 ${PWD}/infra/stack.py" --progress=events &> >(tee cdk.log)
-          echo "CDK_DIFF=$(cat ./cdk.log)" >> $GITHUB_ENV
+          echo "cdk_diff=$(cat ./cdk.log)" >> $GITHUB_OUTPUT
       # - name: Echo CDK Diff
       #   run: |
       #     echo "data<<EOF" >> $GITHUB_OUTPUT
@@ -62,9 +62,9 @@ jobs:
             ### CDK Diff
             <details>
               <summary>Show diff</summary>
-              ` ` `bash
-              ${{ env.CDK_DIFF }}
-              ` ` `
+                ```
+                echo ${{ steps.cdk_output.outputs.cdk_diff }}
+                ```
             </details>
       # - name: CDK Synth
       #   if: github.event_name == 'push' && github.event.pull_request.merged == false
