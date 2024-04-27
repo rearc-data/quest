@@ -31,9 +31,12 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-east-1"
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-session-name: "GitHubActions-DeployStack"
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          # aws-region: "us-east-1"
       # - name: Install cdk-notifier
       #   run: |
       #     curl -L "https://github.com/karlderkaefer/cdk-notifier/releases/latest/download/cdk-notifier_$(uname)_amd64.gz" -o cdk-notifier.gz
@@ -42,12 +45,12 @@ jobs:
       #     cdk-notifier --version
       - name: CDK Synth
         if: github.event_name == 'push' && github.event.pull_request.merged == false
-        run: cdk synth --app="python3 ${PWD}/infra/stack.py"
+        run: cdk synth RearcQuestStack
       - name: CDK Diff
         id: cdk_output
         if: github.event_name == 'push' && github.event.pull_request.merged == false
         run: |
-          cdk diff --app="python3 ${PWD}/infra/stack.py" --progress=events &> >(tee cdk.log)
+          cdk diff RearcQuestStack --progress=events &> >(tee cdk.log)
           echo "cdk_diff=$(cat ./cdk.log)" >> $GITHUB_OUTPUT
       # - name: Echo CDK Diff
       #   run: |
