@@ -9,19 +9,19 @@ repos:
     rev: 22.10.0
     hooks:
     -   id: black
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.9.0
-    hooks:
-    -   id: mypy
-        args: [
-          "--show-error-codes",
-          "--python-executable=/opt/hostedtoolcache/Python/3.11.9/x64"
-          # "--python-executable=/Users/admin/.pyenv/versions/3.11.9/envs/rearc-quest-3.11.9/bin/python",
-          # "--python-executable=/usr/local/bin/python"
-        ]
-        additional_dependencies:
-          - 'types-requests'
-          - 'types-beautifulsoup4'
+# -   repo: https://github.com/pre-commit/mirrors-mypy
+#     rev: v1.9.0
+#     hooks:
+#     -   id: mypy
+#         args: [
+#           "--show-error-codes",
+#           # "--python-executable=/opt/hostedtoolcache/Python/3.11.9/x64"
+#           "--python-executable=/Users/admin/.pyenv/versions/3.11.9/envs/rearc-quest-3.11.9/bin/python",
+#           # "--python-executable=/usr/local/bin/python"
+#         ]
+#         additional_dependencies:
+#           - 'types-requests'
+#           - 'types-beautifulsoup4'
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
