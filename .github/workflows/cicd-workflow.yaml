@@ -53,7 +53,8 @@ jobs:
           --repo $(echo ${{ github.repository }} | cut -d'/' -f2) \
           --log-file ./cdk.log \
           --tag-id diff-to-main \
-          --template extendedWithResources
+          --template extendedWithResources \
+          --token ${{ secrets.GH_TOKEN }}
       # - name: Echo CDK Diff
       #   run: |
       #     echo "data<<EOF" >> $GITHUB_OUTPUT
