@@ -55,7 +55,7 @@ jobs:
           --tag-id diff-to-main \
           --template extendedWithResources \
           --token ${{ secrets.GH_TOKEN }} \
-          --pull-request-id ${{ github.event.pull_request.number }}
+          --pull-request-id ${{ github.event.pull_request.pull_request.id }}
       # - name: Echo CDK Diff
       #   run: |
       #     echo "data<<EOF" >> $GITHUB_OUTPUT
