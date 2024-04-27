@@ -41,6 +41,7 @@ jobs:
           cdk_subcommand: "synth"
           cdk_stack: "RearcQuestStack"
           debug_log: true
+          working_dir: "infra"
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -53,6 +54,7 @@ jobs:
           cdk_stack: "RearcQuestStack"
           debug_log: true
           actions_comment: true
+          working_dir: infra
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
