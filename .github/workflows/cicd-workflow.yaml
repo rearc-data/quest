@@ -36,7 +36,27 @@ jobs:
           aws-region: "us-east-1"
       - name: CDK Synth
         if: github.event_name == 'push' && github.event.pull_request.merged == false
-        run: cdk synth --app="python3 ${PWD}/infra/stack.py" --require-approval=never
+        run: cdk synth --app="python3 ${PWD}/infra/stack.py"
+      - name: CDK Diff
+        if: github.event_name == 'push' && github.event.pull_request.merged == false
+        run: cdk diff --app="python3 ${PWD}/infra/stack.py" 2>&1 2>&1 | tee output.log
+      - name: Echo CDK Diff
+        run: |
+          echo "data<<EOF" >> $GITHUB_OUTPUT
+          echo "$(cat output.log)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Comment CDK Diff on the PR
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: cdk-diff
+          message: |
+            CDK Diff
+            <details>
+              <summary>Show diff</summary>
+              ```bash
+              ${{ steps.output_log.outputs.data }}
+              ```
+            </details>
       # - name: CDK Synth
       #   if: github.event_name == 'push' && github.event.pull_request.merged == false
       #   uses: youyo/aws-cdk-github-actions@v2

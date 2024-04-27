@@ -15,6 +15,7 @@ repos:
     -   id: mypy
         args: [
           "--show-error-codes",
+          "--python-executable=/opt/hostedtoolcache/Python/3.11.9/x64"
           # "--python-executable=/Users/admin/.pyenv/versions/3.11.9/envs/rearc-quest-3.11.9/bin/python",
           # "--python-executable=/usr/local/bin/python"
         ]
