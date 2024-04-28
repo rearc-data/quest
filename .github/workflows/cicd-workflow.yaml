@@ -49,4 +49,3 @@ jobs:
       - name: CDK Deploy
         if: github.event.pull_request.merged == true
         run: cdk deploy RearcQuestStack
-
