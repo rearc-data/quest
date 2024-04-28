@@ -29,7 +29,7 @@ jobs:
       - name: Install Python dependencies and CDK
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r infra/requirements.txt
           npm install -g aws-cdk
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -40,7 +40,8 @@ jobs:
       - name: Test CDK
         run: |
           pip install -r infra/requirements-dev.txt
-          pytest infra/tests/unit/test_rearc_quest_stack.py
+          cd infra
+          pytest tests/unit/test_rearc_quest_stack.py
       - name: CDK Synth
         if: github.event_name == 'push' && github.event.pull_request.merged == false
         run: cd infra && cdk synth RearcQuestStack
