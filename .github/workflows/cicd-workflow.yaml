@@ -31,13 +31,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           npm install -g aws-cdk
-          cdk bootstrap aws://790890014576/us-east-1
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+      - name: Test CDK
+        run: |
+          pip install -r infra/requirements-dev.txt
+          pytest infra/tests/unit/test_rearc_quest_stack.py
       - name: CDK Synth
         if: github.event_name == 'push' && github.event.pull_request.merged == false
         run: cd infra && cdk synth RearcQuestStack
