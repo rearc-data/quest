@@ -43,9 +43,8 @@ jobs:
       - name: CDK Diff
         id: cdk_output
         if: github.event_name == 'push' && github.event.pull_request.merged == false
-        run: |
-          cdk diff RearcQuestStack --progress=events &> >(tee cdk.log)
-          echo "cdk_diff=$(cat ./cdk.log)" >> $GITHUB_OUTPUT
+        run: cd infra && cdk diff RearcQuestStack
       - name: CDK Deploy
         if: github.event.pull_request.merged == true
-        run: cdk deploy --app="python3 ${PWD}/infra/stacks/rearc_quest_stack.py"
+        run: cd infra && cdk deploy RearcQuestStack
+        # --app="python3 ${PWD}/infra/stacks/rearc_quest_stack.py"

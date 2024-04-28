@@ -193,8 +193,3 @@ class RearcQuestStack(Stack):
                 batch_size=1,
             )
         )
-
-
-# app = App()
-# RearcQuestStack(app, "RearcQuestStack")
-# app.synth()
