@@ -14,7 +14,12 @@ class TrustStack(Stack):
 
         ### Create parameters to provide at runtime
 
-        # self.github_org = CfnParameter(self, "GitHubOrg", type="String", description="The GitHub organization that owns the repository.")
+        self.github_org = CfnParameter(
+            self,
+            "GitHubOrg",
+            type="String",
+            description="The GitHub organization that owns the repository.",
+        )
 
         self.github_repo = CfnParameter(
             self,
@@ -43,7 +48,7 @@ class TrustStack(Stack):
                 conditions={
                     "StringLike": {
                         "token.actions.githubusercontent.com:sub": [
-                            f"repo:{self.github_repo.value_as_string}:*",
+                            f"repo:{self.github_org.value_as_string}/{self.github_repo.value_as_string}:ref:refs/*",
                         ],
                     },
                     "StringEquals": {

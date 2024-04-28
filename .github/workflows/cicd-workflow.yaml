@@ -34,18 +34,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          role-session-name: "GitHubActions-DeployStack"
-          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          # aws-region: "us-east-1"
-      # - name: Install cdk-notifier
-      #   run: |
-      #     curl -L "https://github.com/karlderkaefer/cdk-notifier/releases/latest/download/cdk-notifier_$(uname)_amd64.gz" -o cdk-notifier.gz
-      #     gunzip cdk-notifier.gz && chmod +x cdk-notifier && rm -rf cdk-notifier.gz
-      #     sudo mv cdk-notifier /usr/local/bin/cdk-notifier
-      #     cdk-notifier --version
       - name: CDK Synth
         if: github.event_name == 'push' && github.event.pull_request.merged == false
         run: cdk synth RearcQuestStack
@@ -55,65 +46,7 @@ jobs:
         run: |
           cdk diff RearcQuestStack --progress=events &> >(tee cdk.log)
           echo "cdk_diff=$(cat ./cdk.log)" >> $GITHUB_OUTPUT
-      # - name: Echo CDK Diff
-      #   run: |
-      #     echo "data<<EOF" >> $GITHUB_OUTPUT
-      #     echo "$(cat output.log)" >> $GITHUB_OUTPUT
-      #     echo "EOF" >> $GITHUB_OUTPUT
-      - name: Comment CDK Diff on the PR
-        uses: mshick/add-pr-comment@v2
-        with:
-          message-id: cdk-diff
-          message: |
-            ### CDK Diff
-            <details>
-              <summary>Show diff</summary>
-                ```
-                echo ${{ steps.cdk_output.outputs.cdk_diff }}
-                ```
-            </details>
-      # - name: CDK Synth
-      #   if: github.event_name == 'push' && github.event.pull_request.merged == false
-      #   uses: youyo/aws-cdk-github-actions@v2
-      #   with:
-      #     cdk_subcommand: "synth"
-      #     cdk_stack: "RearcQuestStack"
-      #     debug_log: true
-      #     working_dir: "infra"
-      #   env:
-      #     AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: "us-east-1"
-      # - name: CDK Diff
-      #   if: github.event_name == 'push' && github.event.pull_request.merged == false
-      #   uses: youyo/aws-cdk-github-actions@v2
-      #   with:
-      #     cdk_subcommand: "diff"
-      #     cdk_stack: "RearcQuestStack"
-      #     debug_log: true
-      #     actions_comment: true
-      #     working_dir: infra
-      #   env:
-      #     AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: "us-east-1"
-      # - name: CDK Deploy
-      #   if: github.event.pull_request.merged == true
-      #   uses: youyo/aws-cdk-github-actions@v2
-      #   with:
-      #     cdk_subcommand: "deploy"
-      #     cdk_stack: "RearcQuestStack"
-      #     cdk_args: "--require-approval never"
-      #     actions_comment: false
-      #   env:
-      #     AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: "us-east-1"
-      # cdk-notifier \
-      #     --owner ${{ github.repository_owner }} \
-      #     --repo $(echo ${{ github.repository }} | cut -d'/' -f2) \
-      #     --log-file ./cdk.log \
-      #     --tag-id diff-to-main \
-      #     --template extendedWithResources \
-      #     --token ${{ secrets.GH_TOKEN }} \
-      #     --pull-request-id ${{ github.event.pull_request.pull_request.id }}
+      - name: CDK Deploy
+        if: github.event.pull_request.merged == true
+        run: cdk deploy RearcQuestStack
+

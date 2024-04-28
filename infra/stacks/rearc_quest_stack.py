@@ -1,4 +1,4 @@
-from aws_cdk import App, Duration, Stack
+from aws_cdk import App, BundlingOptions, DockerImage, Duration, Stack
 from aws_cdk import aws_events as events
 from aws_cdk import aws_events_targets as targets
 from aws_cdk import aws_iam as iam
@@ -21,18 +21,27 @@ class RearcQuestStack(Stack):
 
         ### Create the S3 Bucket
 
-        self.rearc_quest_bucket = s3.Bucket(self, "rearc-quest")
+        self.rearc_quest_bucket = s3.Bucket.from_bucket_name(
+            self,
+            id="rearc-quest-bucket",
+            bucket_name="790890014576-rearc-data-quest-bucket",
+        )
 
         ### Create Policies and Roles for the Lambdas
 
         self.ingestion_policy = iam.PolicyStatement(
             sid="IngestionPolicy",
-            actions=[
-                "s3:PutObject",
-            ],
+            actions=["s3:PutObject", "s3:PutObjectAcl", "s3:DeleteObject"],
             resources=[
                 self.rearc_quest_bucket.bucket_arn,
+                f"{self.rearc_quest_bucket.bucket_arn}/*",
             ],
+        )
+
+        self.basic_execution_role_lambda = iam.ManagedPolicy.from_managed_policy_arn(
+            self,
+            id="AWSLambdaBasicExecutionRole",
+            managed_policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
         )
 
         self.ingestion_role_lambda = iam.Role(
@@ -42,12 +51,15 @@ class RearcQuestStack(Stack):
         )
 
         self.ingestion_role_lambda.add_to_policy(self.ingestion_policy)
+        self.ingestion_role_lambda.add_managed_policy(self.basic_execution_role_lambda)
 
         self.processing_policy = iam.PolicyStatement(
             sid="ProcessingPolicy",
             actions=[
                 "s3:GetObject",
+                "s3:GetObjectAcl",
                 "s3:PutObject",
+                "s3:PutObjectAcl",
                 "s3:ListBucket",
                 "s3:DeleteObject",
             ],
@@ -64,16 +76,29 @@ class RearcQuestStack(Stack):
         )
 
         self.processing_role_lambda.add_to_policy(self.processing_policy)
+        self.processing_role_lambda.add_managed_policy(self.basic_execution_role_lambda)
 
         ### Create Scheduled Lambda to Poll for Population and Productivity Data
 
         self.data_ingestion_lambda = lambda_.Function(
             self,
             id="DataIngestionLambda",
+            function_name="DataIngestionLambda",
             runtime=lambda_.Runtime.PYTHON_3_11,
             handler="ingestion.handler",
-            code=lambda_.Code.from_asset("lambda"),
+            code=lambda_.Code.from_asset(
+                path="lambda/ingestion/",
+                bundling=BundlingOptions(
+                    image=DockerImage.from_registry("python:3.11.9-slim-bullseye"),
+                    command=[
+                        "bash",
+                        "-c",
+                        "pip install --no-cache -r requirements.txt -t /asset-output && cp -au . /asset-output",
+                    ],
+                ),
+            ),
             role=self.ingestion_role_lambda,
+            timeout=Duration.seconds(60),
         )
 
         ### Create EvenBridge rule to trigger the Ingestion Lambda daily, and set the target of the rule to be the Lambda created above
@@ -112,6 +137,7 @@ class RearcQuestStack(Stack):
             dead_letter_queue=sqs.DeadLetterQueue(
                 queue=self.new_data_dead_letter_queue, max_receive_count=3
             ),
+            visibility_timeout=Duration.seconds(60),
         )
 
         ### Create IAM Role for the S3 Event Notifications to send events to the SQS queue
@@ -135,7 +161,7 @@ class RearcQuestStack(Stack):
         self.rearc_quest_bucket.add_event_notification(
             s3.EventType.OBJECT_CREATED,
             s3_notifications.SqsDestination(self.new_data_queue),
-            s3.NotificationKeyFilter(prefix="data/"),
+            s3.NotificationKeyFilter(prefix="data/population", suffix=".json"),
         )
 
         ### Create a Lambda to process and analyze the data once a notification is received in the queue
@@ -143,17 +169,27 @@ class RearcQuestStack(Stack):
         self.data_processing_lambda = lambda_.Function(
             self,
             id="DataProcessingLambda",
+            function_name="DataProcessingLambda",
             runtime=lambda_.Runtime.PYTHON_3_11,
             handler="processing.handler",
-            code=lambda_.Code.from_asset("lambda"),
+            code=lambda_.Code.from_asset(
+                path="lambda/processing/",
+                bundling=BundlingOptions(
+                    image=DockerImage.from_registry("python:3.11.9-slim-bullseye"),
+                    command=[
+                        "bash",
+                        "-c",
+                        "pip install --no-cache -r requirements.txt -t /asset-output && cp -au . /asset-output",
+                    ],
+                ),
+            ),
             role=self.processing_role_lambda,
-            reserved_concurrent_executions=1,
+            timeout=Duration.seconds(60),
         )
 
         self.data_processing_lambda.add_event_source(
             lambda_event_sources.SqsEventSource(
                 queue=self.new_data_queue,
                 batch_size=1,
-                max_concurrency=2,
             )
         )
