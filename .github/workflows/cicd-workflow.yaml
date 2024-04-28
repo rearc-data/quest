@@ -31,6 +31,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           npm install -g aws-cdk
+          cdk bootstrap aws://790890014576/us-east-1
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -47,4 +48,3 @@ jobs:
       - name: CDK Deploy
         if: github.event.pull_request.merged == true
         run: cd infra && cdk deploy RearcQuestStack
-        # --app="python3 ${PWD}/infra/stacks/rearc_quest_stack.py"
