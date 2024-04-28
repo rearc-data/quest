@@ -101,7 +101,7 @@ class RearcQuestStack(Stack):
             timeout=Duration.seconds(60),
         )
 
-        ### Create EvenBridge rule to trigger the Ingestion Lambda daily, and set the target of the rule to be the Lambda created above
+        ### Create EventBridge rule to trigger the Ingestion Lambda daily, and set the target of the rule to be the Lambda created above
 
         self.event_rule = events.Rule(
             self,
