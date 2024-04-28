@@ -1,5 +1,5 @@
 import aws_cdk.aws_iam as iam
-from aws_cdk import App, CfnOutput, CfnParameter, Stack
+from aws_cdk import CfnOutput, CfnParameter, Stack
 from constructs import Construct
 
 
@@ -43,11 +43,12 @@ class TrustStack(Stack):
                 conditions={
                     "StringLike": {
                         "token.actions.githubusercontent.com:sub": [
-                            f"repo:{self.github_repo.value_as_string}:ref:refs/heads/main",
+                            f"repo:{self.github_repo.value_as_string}:*",
                         ],
                     },
                     "StringEquals": {
                         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+                        "token.actions.githubusercontent.com:iss": "https://token.actions.githubusercontent.com",
                     },
                 },
                 assume_role_action="sts:AssumeRoleWithWebIdentity",
@@ -58,10 +59,10 @@ class TrustStack(Stack):
         self.assume_cdk_deployment_roles_policy = iam.PolicyStatement(
             effect=iam.Effect.ALLOW,
             actions=["sts:AssumeRole"],
-            resources=["arn:aws:iam::*:role/cdk-*"],
+            resources=["*"],
             conditions={
-                "StringEquals": {
-                    "aws:ResourceTag/aws-cdk:bootstrap-role": [
+                "ForAnyValue:StringEquals": {
+                    "iam:ResourceTag/aws-cdk:bootstrap-role": [
                         "file-publishing",
                         "lookup",
                         "deploy",

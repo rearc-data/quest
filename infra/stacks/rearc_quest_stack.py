@@ -157,8 +157,3 @@ class RearcQuestStack(Stack):
                 max_concurrency=2,
             )
         )
-
-
-app = App()
-RearcQuestStack(app, "RearcQuestStack")
-app.synth()
