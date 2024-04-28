@@ -39,7 +39,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       - name: CDK Synth
         if: github.event_name == 'push' && github.event.pull_request.merged == false
-        run: cdk synth --app="python3 ${PWD}/infra/stacks/rearc_quest_stack.py"
+        run: cd infra && cdk synth RearcQuestStack
       - name: CDK Diff
         id: cdk_output
         if: github.event_name == 'push' && github.event.pull_request.merged == false
@@ -48,4 +48,4 @@ jobs:
           echo "cdk_diff=$(cat ./cdk.log)" >> $GITHUB_OUTPUT
       - name: CDK Deploy
         if: github.event.pull_request.merged == true
-        run: cdk deploy RearcQuestStack
+        run: cdk deploy --app="python3 ${PWD}/infra/stacks/rearc_quest_stack.py"
