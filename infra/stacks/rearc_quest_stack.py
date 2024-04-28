@@ -195,6 +195,6 @@ class RearcQuestStack(Stack):
         )
 
 
-app = App()
-RearcQuestStack(app, "RearcQuestStack")
-app.synth()
+# app = App()
+# RearcQuestStack(app, "RearcQuestStack")
+# app.synth()
