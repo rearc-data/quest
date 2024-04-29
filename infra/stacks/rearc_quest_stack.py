@@ -99,6 +99,7 @@ class RearcQuestStack(Stack):
             ),
             role=self.ingestion_role_lambda,
             timeout=Duration.seconds(60),
+            retry_attempts=3,
         )
 
         ### Create EventBridge rule to trigger the Ingestion Lambda daily, and set the target of the rule to be the Lambda created above
@@ -185,6 +186,7 @@ class RearcQuestStack(Stack):
             ),
             role=self.processing_role_lambda,
             timeout=Duration.seconds(60),
+            retry_attempts=3,
         )
 
         self.data_processing_lambda.add_event_source(
