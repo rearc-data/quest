@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "rearc-data-quest"
+version = "0.1.0"
+description = ""
+authors = ["Dan Noventa <daniel.a.noventa@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pytest = "^8.2.2"
+pytest-mock = "^3.14.0"
+boto3 = "^1.34.122"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

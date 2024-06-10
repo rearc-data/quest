@@ -38,7 +38,7 @@ class TestStateMachine(TestCase):
             )
 
         # Verify stack exists
-        client = boto3.client("cloudformation")
+        client = boto3.client("cloudformation", region_name="us-east-2")
         try:
             client.describe_stacks(StackName=stack_name)
         except Exception as e:
@@ -58,7 +58,7 @@ class TestStateMachine(TestCase):
         """
         stack_name = TestStateMachine.get_and_verify_stack_name()
 
-        client = boto3.client("cloudformation")
+        client = boto3.client("cloudformation", region_name="us-east-2")
         response = client.list_stack_resources(StackName=stack_name)
         resources = response["StackResourceSummaries"]
         state_machine_resources = [
@@ -74,13 +74,13 @@ class TestStateMachine(TestCase):
         cls.transaction_table_name = transaction_table_resources[0]["PhysicalResourceId"]
 
     def setUp(self) -> None:
-        self.client = boto3.client("stepfunctions")
+        self.client = boto3.client("stepfunctions", region_name="us-east-2")
 
     def tearDown(self) -> None:
         """
         Delete the dynamodb table item that are created during the test
         """
-        client = boto3.client("dynamodb")
+        client = boto3.client("dynamodb", region_name="us-east-2")
         client.delete_item(
             Key={
                 "Id": {
@@ -136,7 +136,7 @@ class TestStateMachine(TestCase):
         Use the input recorded in _retrieve_transaction_table_input() to
         verify whether the record has been written to dynamodb
         """
-        client = boto3.client("dynamodb")
+        client = boto3.client("dynamodb", region_name="us-east-2")
         response = client.get_item(
             Key={
                 "Id": {
