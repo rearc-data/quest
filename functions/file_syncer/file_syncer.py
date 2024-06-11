@@ -26,6 +26,7 @@ class FileSyncer:
         self.bucket = s3.Bucket( "noventa-scratch-bucket")
         self.s3_bucket = s3_bucket
         self.s3_client = boto3.client('s3', 'us-east-2', config=Config(signature_version='s3v4'))
+        self.ses_client = boto3.client('ses', 'us-east-2')
 
         # Configure URLLib to mimic a browser
         opener = urllib.request.build_opener()
@@ -73,6 +74,7 @@ class FileSyncer:
             logging.log(logging.INFO, f"Creating directory for date: {date}")
             os.makedirs(f"/tmp/{date}")
 
+
     # Public functions for Syncer
     def generate_presigned_urls(self, expires_in: int=604800) -> list[str]:
         available_files = self.files_up_to_date.union(self.files_to_add)
@@ -81,12 +83,38 @@ class FileSyncer:
         for date, file in available_files:
             key = f"{self.prefix}/{date}/{file}"
             logging.log(logging.INFO, f"Generating presigned URL for key: {key}")
-            presigned_urls.append(self.s3_client.generate_presigned_url('get_object',
+            presigned_urls.append((date, file, self.s3_client.generate_presigned_url('get_object',
                                             Params={'Bucket': self.s3_bucket,
                                                     'Key': f"{key}"},
-                                            ExpiresIn=expires_in))           
+                                            ExpiresIn=expires_in)))
 
         return presigned_urls            
+
+    def send_email(self, email: str = "noventa@hey.com") -> None:
+        html_list = '<ol>'
+        for date, file, item in self.generate_presigned_urls():
+            html_list += f'<li>{date}/{file}: {item}</li>'
+        html_list += '</ol>'          
+
+        logging.log(logging.INFO, f"Sending email to {email}")
+        self.ses_client.send_email(
+            Destination={
+                'ToAddresses': [email],
+            },
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': 'UTF-8',
+                        'Data': f'<h1>Presigned Urls</h1>{html_list}',
+                    },
+                },
+                'Subject': {
+                    'Charset': 'UTF-8',
+                    'Data': 'Sending Presigned URLS',
+                },
+            },
+            Source=email,
+        )    
 
 
     def extract_productivity_cost_data(self) -> None:

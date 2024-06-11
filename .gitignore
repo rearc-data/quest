@@ -120,6 +120,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+deps/
 develop-eggs/
 dist/
 downloads/
@@ -240,5 +241,6 @@ $RECYCLE.BIN/
 # Build folder
 
 */build/*
+*/deps/*
 
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode

@@ -24,5 +24,6 @@ def lambda_handler(event, context):
 
     sync.extract_productivity_cost_data()
     sync.load_productivity_cost_data()
+    sync.send_email()
     
-    return {"presigned_urls": sync.generate_presigned_urls()}
+    return

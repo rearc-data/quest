@@ -12,7 +12,44 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.12
       MemorySize: 3008
-      Timeout: 30
+      Timeout: 60
+      Environment:
+        Variables:
+          REARCHQUESTBUCKET_BUCKET_NAME: !Ref RearchQuestBucket
+          REARCHQUESTBUCKET_BUCKET_ARN: !GetAtt RearchQuestBucket.Arn
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:GetObjectAcl
+                - s3:GetObjectLegalHold
+                - s3:GetObjectRetention
+                - s3:GetObjectTorrent
+                - s3:GetObjectVersion
+                - s3:GetObjectVersionAcl
+                - s3:GetObjectVersionForReplication
+                - s3:GetObjectVersionTorrent
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListBucketVersions
+                - s3:ListMultipartUploadParts
+                - s3:AbortMultipartUpload
+                - s3:DeleteObject
+                - s3:DeleteObjectVersion
+                - s3:PutObject
+                - s3:PutObjectLegalHold
+                - s3:PutObjectRetention
+                - s3:RestoreObject
+              Resource:
+                - !Sub arn:${AWS::Partition}:s3:::${RearchQuestBucket}
+                - !Sub arn:${AWS::Partition}:s3:::${RearchQuestBucket}/*
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+              Resource: 
+                - "*"
 
   SyncAndReportStateMachine:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
@@ -32,6 +69,39 @@ Resources:
             FunctionName: !Ref FileSyncerFunction
       Type: STANDARD
       DefinitionUri: statemachine/rearc_data_quest.asl.json
+  EmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: noventa@hey.com
+  RearchQuestBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-rearchque-${AWS::AccountId}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: alias/aws/s3
+      PublicAccessBlockConfiguration:
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+  RearchQuestBucketBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref RearchQuestBucket
+      PolicyDocument:
+        Id: RequireEncryptionInTransit
+        Version: '2012-10-17'
+        Statement:
+          - Principal: '*'
+            Action: '*'
+            Effect: Deny
+            Resource:
+              - !GetAtt RearchQuestBucket.Arn
+              - !Sub ${RearchQuestBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: 'false'
 
 Outputs:
   # SyncAndReportStateMachine is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
