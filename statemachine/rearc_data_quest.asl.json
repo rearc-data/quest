@@ -1,0 +1,22 @@
+{
+	"Comment": "A state machine that does mock stock trading.",
+	"StartAt": "SyncFiles",
+	"States": {
+		"SyncFiles": {
+			"Type": "Task",
+			"Resource": "${FileSyncerFunctionArn}",
+			"Retry": [
+				{
+					"ErrorEquals": [
+						"States.TaskFailed"
+					],
+					"IntervalSeconds": 15,
+					"MaxAttempts": 5,
+					"BackoffRate": 1.5
+				}
+			],
+			"Parameters": {},
+			"End": true
+		}
+	}
+}

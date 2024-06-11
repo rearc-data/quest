@@ -1,0 +1,411 @@
+                Major Sector Productivity and Costs (PR)
+                                    pr.txt
+
+
+Section Listing
+
+1. Survey Definition
+2. FTP files listed in the survey directory.
+3. Time series, series file, data file, & mapping file definitions and relationships
+4. Series file format and field definitions
+5. Data file format and field definitions
+6. Mapping file formats and field definitions
+7. Data Element Dictionary
+================================================================================
+Section 1
+================================================================================
+
+The following is a definition of:  MAJOR SECTOR PRODUCTIVITY AND COSTS (PR) 
+
+Survey Description:  Productivity and costs measures are published for six
+major sectors:  Business, nonfarm business, nonfinancial corporations,
+total manufacturing, durable goods manufacturing, and nondurable goods
+manufacturing.
+
+For each sector, measures of industry analytic ratios (e.g., productivity,
+unit labor costs) are available as well as basic data (e.g., output, hours,
+and compensation) on which they are based. Output data are from the Bureau
+of Economic Analysis and the Census Bureau of the U.S. Department of
+Commerce; the Bureau of Labor Statistics, U.S. Department of Labor; and the
+Federal Reserve Board.  Compensation data are from the Bureau of Economic
+Analysis and the Bureau of Labor Statistics.  Employment and average weekly
+hours are selected from the BLS establishment survey, and, where necessary
+for the farm sector and for the self-employed, from the BLS labor force
+survey.  The labor input measure is then converted to the hours at work
+concept using results of a special annual survey, conducted for this
+purpose.
+
+Summary Data Available:  There are approximately 282 Major Sector
+Productivity series available on the LABSTAT database.  Series for business
+and nonfarm business begin in 1947, those for manufacturing in 1987, and
+those for nonfinancial corporations in 1958.
+
+Frequency of Observations:  Series are available quarterly and annually.
+Quarterly measures are based entirely on seasonally adjusted data.
+
+Annual Averages:  For some manufacturing series, only annual averages are
+available.
+
+Base Periods:  The base period for the indexes presented for each series is
+2005 = 100.
+
+Data Characteristics:  All percent changes are calculated using index numbers
+rounded to three decimal places.  Indexes are stored to three decimal places 
+and percent changes are stored to one decimal place.
+
+Update Schedule:  Updates are performed near the beginning of the second and 
+third month of each quarter, reflecting new data from the preceding quarter.
+Traditionally, all revisions to source data are reflected in the following release.
+
+References:    BLS Handbook of Methods, Chapter 10, "Productivity
+               Measures: Business Sector and Major Subsectors", BLS
+               Bulletin 2490 (April 1997).
+
+               "New Sector Definitions for Productivity Series", Monthly
+               Labor Review, October 1976, pp. 40-42.
+
+               "Improvements to the Quarterly Productivity Measures",
+               Monthly Labor Review, October 1995, pp. 27-32.
+==================================================================================
+Section 2
+==================================================================================
+The following Major Sector Productivity and Costs files are on the BLS 
+internet in the sub-directory pub/time.series/pr:
+
+
+        pr.class                - Class codes                   mapping file
+        pr.contacts             - Contacts for PR program 
+        pr.data.0.Current       - All current year-to-date data
+        pr.data.1.AllData       - All data
+        pr.duration             - Duration codes                mapping file
+        pr.footnote             - Footnote codes                mapping file
+        pr.measure              - Measure codes                 mapping file
+        pr.period               - Period codes                  mapping file
+        pr.seasonal             - Seasonal codes                mapping file
+        pr.sector               - Sector codes                  mapping file
+        pr.series               - All series and their beginning and end dates
+        pr.txt                  - General information
+=================================================================================
+Section 3
+=================================================================================
+The definition of a time series, its relationship to and the interrelationship
+among series, data and mapping files is detailed below:
+
+A time series refers to a set of data observed over an extended period of time
+over consistent time intervals (i.e. monthly, quarterly, semi-annually, annually).  
+BLS time series data are typically produced at monthly intervals and represent data 
+ranging from a specific consumer item in a specific geographical area whose price 
+is gathered monthly to a category of worker in a specific industry whose employment
+rate is being recorded monthly, etc.
+
+The FTP files are organized such that data users are provided with the following
+set of files to use in their efforts to interpret data files:
+
+a)  a series file (only one series file per survey)
+b)  mapping files
+c)  data files
+
+The series file contains a set of codes which, together, compose a series 
+identification code that serves to uniquely identify a single time series.  
+Additionally, the series file also contains the following series-level information:
+
+a) the period and year corresponding to the first data observation 
+b) the period and year corresponding to the most recent data observation. 
+
+The mapping files are definition files that contain explanatory text descriptions
+that correspond to each of the various codes contained within each series
+identification code.
+
+The data file contains one line of data for each observation period pertaining to a
+specific time series.  Each line contains a reference to the following:
+
+a) a series identification code
+b) year in which data is observed
+c) period for which data is observed (M13, Q05, and S03 indicate annual averages)
+d) value
+e) footnote code (if available)
+=================================================================================
+Section 4
+=================================================================================
+File Structure and Format: The following represents the file format used to define 
+pr.series.  Note that the Field Numbers are for reference only; they do not exist 
+in the database.  Data files are in ASCII text format.  Data elements are separated 
+by tabs; the first record of each file contains the column headers for the data
+elements stored in each field.  Each record ends with a new line character. 
+
+Field #/Data Element    Length          Value(Example)          
+
+1.  series_id           17              PRS30006011
+
+2.  sector_code         4               3000
+
+3.  class_code          1               6
+
+4.  measure_code        2               01  
+
+5.  duration_code       1               1
+
+6.  seasonal (code)     1               S               
+
+7.  base_year           4               -
+
+8.  footnote_codes      10              r
+
+9.  begin_year          4               1988
+
+10. begin_period        3               Q01
+
+11. end_year            4               2011
+
+12. end_period          3               Q03
+
+
+The series_id (PRS30006011) can be broken out into:
+
+Code                                    Value
+
+survey abbreviation     =               PR
+seasonal (code)         =               S
+sector_code             =               3000
+class_code              =               6
+measure_code            =               01
+duration_code           =               1
+==================================================================================
+Section 5
+==================================================================================
+File Structure and Format: The following represents the file format used to define
+each data file.  Note that the field numbers are for reference only; they do not 
+exist in the database.  Data files are in ASCII text format.  Data elements are 
+separated by tabs; the first record of each file contains the column headers for 
+the data elements stored in each field.  Each record ends with a new line character.
+
+The pr.data file is partitioned into two separate files:
+
+        1.  pr.data.0.Current   - All current year-to-date data
+        2.  pr.data.1.AllData   - All data
+
+The above-named data files have the following format:
+
+Field #/Data Element    Length          Value(Example)
+
+1. series_id            17              PRS30006011
+
+2. year                 4               1988
+
+3. period               3               Q01
+
+4. value                12              1.9
+
+5. footnote_codes       10              r
+                                
+
+The series_id (PRS30006011) can be broken out into:
+
+Code                                    Value
+
+survey abbreviation     =               PR
+seasonal (code)         =               S
+sector_code             =               3000
+class_code              =               6
+measure_code            =               01
+duration_code           =               1
+================================================================================
+Section 6
+================================================================================
+File Structure and Format:  The following represents the file format used to define
+each mapping file. Note that the field numbers are for reference only; they do not
+exist in the database.  Mapping files are in ASCII text format.  Data elements are
+separated by tabs; the first record of each file contains the column headers for the
+data elements stored in each field.  Each record ends with a new line character. 
+
+File Name:  pr.class
+
+Field #/Data Element            Length          Value(Example)
+
+1. class_code                   1               6
+
+2. class_text                   100             Text
+        
+3. display_level                2               0
+
+4. selectable                   1               T
+
+5. sort_sequence                5               1
+
+
+File Name:  pr.duration
+
+Field #/Data Element            Length          Value(Example)
+
+1. duration_code                1               1
+
+2. duration_text                100             Text
+
+3. display_level                2               0
+
+4. selectable                   1               T
+
+5. sort_sequence                5               1
+
+
+File Name:  pr.footnote
+
+Field #/Data Element            Length          Value(Example)
+
+1. footnote_code                2               R
+
+2. footnote_text                200             Text
+
+
+File Name:  pr.measure
+
+Field #/Data Element            Length          Value(Example)
+
+1. measure_code                 2               01
+
+2. measure_text                 100             Text
+
+3. display_level                2               0
+
+4. selectable                   1               T
+
+5. sort_sequence                5               1
+
+
+File Name:  pr.period
+
+Field #/Data Element            Length          Value(Example)
+
+1. period                       3               Q01
+
+2. period_abbr                  5               QTR1
+
+3. period_name                  20              Text
+
+
+File Name:  pr.seasonal
+
+Field #/Data Element            Length          Value(Example)
+
+1. seasonal_code                1               S
+
+2. seasonal_text                30              Text
+
+
+File Name:  pr.sector
+
+Field #/Data Element            Length          Value(Example)
+
+1. sector_code                  4               3000
+
+2. sector_name                  100             Text
+
+3. display_level                2               0
+
+4. selectable                   1               T
+
+5. sort_sequence                5               1
+=========================================================================================
+Section 7
+=========================================================================================
+MAJOR SECTOR PRODUCTIVITY AND COSTS (PR) DATABASE ELEMENTS
+
+
+Data Element   Length           Value(Example)                  Description
+
+base_year       4               YYYY                    Identifies the base year for the
+                                Ex: 2005                index presented.
+
+begin_period    3               Q01-Q05                 Identifies first data observation
+                                Ex: Q01=1st Quarter     within the first year for which
+                                (Q=Quarterly,Q05=       data is available for a given
+                                Annual Average)         time series.                    
+
+begin_year      4               YYYY                    Identifies first year for which
+                                Ex: 1948                data is available for a given
+                                                        time series.
+
+class_code      1               Ex: 6                   Identifies employee group to
+                                                        which data pertain.
+
+class_text      100             Text                    Names employee group to which
+                                Ex: all persons         data pertain.
+
+display_level   2               Ex: 0                   Identifies hierarchical structure
+                                                        of data when combined with sort_
+                                                        sequence information.
+
+duration_code   1               Ex: 1                   Identifies whether data are 
+                                                        percent changes or indexes.
+
+duration_text   100             Text                    Names percent changes or indexes.
+                                Ex: % change year ago
+
+end_period      3               Q01-Q05                 Identifies last data observation
+                                Ex: Q01=1st Quarter     within the last year for which
+                                (Q=Quarterly,Q05=       data is available for a given
+                                Annual Average)         time series.
+
+end_year        4               YYYY                    Identifies last year for which
+                                Ex: 2011                data is available for a given
+                                                        time series.
+
+footnote_code   2               Ex: R                   Identifies an individual footnote.
+
+footnote_codes  10              Ex: R,P                 Identifies full set of footnotes 
+                                                        that apply to a data point or 
+                                                        series, in a comma-separated list.
+                                                        
+footnote_text   200             Text                    Names full text of footnote.
+                                Ex: revised     
+
+measure_code    2               Ex: 01                  Identifies specific factor
+                                                        measured.
+
+measure_text    100             Text                    Names specific factor measured.
+                                Ex: Unit labor costs
+
+period_abbr     5               Period name             Abbreviation of period name
+                                abbreviation            to which the data observation
+                                Ex: QTR1                refers.
+
+period          3               Q01-Q05                 Identifies period to which the
+                                Ex: Q01=1st Quarter     data observation refers.
+                                (Q=Quarterly,Q05=
+                                Annual Average)
+
+period_name     20              Text                    Names period to which the data 
+                                Ex: 1st Quarter         observation refers.
+                                
+seasonal_code   1               S=Seasonally adjusted   Identifies whether the data are
+                                U=Not seasonally        seasonally adjusted.
+                                  adjusted              
+
+seasonal_text   30              Text                    Names seasonal adjustment status.
+                                Ex: Seasonally adjusted
+                                    
+sector_code     4               3000                    Identifies the sector of the
+                                                        economy to which the data
+                                                        observation refers.
+
+sector_name     100             Text                    Names economic sector to which
+                                Ex: Manufacturing       the data observation refers.
+
+selectable      1               T=Selectable            Identifies items that may be 
+                                F=Not selectable        selected in query tools (T) or 
+                                                        items that are titles only and not
+                                                        selectable (F).
+
+series_id       17              Ex: PRS30006011         Identifies the specific series.
+
+sort_sequence   5               Ex: 1                   Identifies order that items will 
+                                                        appear in single-screen query tool
+                                                        and informs hierarchical structure
+                                                        of data when combined with 
+                                                        display_level information.
+
+value           12              Ex: 2.3                 Data value for series.
+
+year            4               YYYY                    Identifies year of data
+                                Ex: 1990                observation.
+

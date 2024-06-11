@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'dan-rearc-dataquest
+
+  Sample SAM Template for dan-rearc-dataquest
+
+  '
+Resources:
+  FileSyncerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: FileSyncerFunction
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      MemorySize: 3008
+      Timeout: 30
+      Layers:
+      - Fn::GetAtt:
+        - AwsSamAutoDependencyLayerNestedStack
+        - Outputs.FileSyncerFunction1731c9a4DepLayer
+    Metadata:
+      SamResourceId: FileSyncerFunction
+  SyncAndReportStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionSubstitutions:
+        FileSyncerFunctionArn:
+          Fn::GetAtt:
+          - FileSyncerFunction
+          - Arn
+      Events:
+        DailySyncSchedule:
+          Type: Schedule
+          Properties:
+            Description: Daily Schedule to sync data and report
+            Enabled: false
+            Schedule: rate(1 day)
+      Policies:
+      - LambdaInvokePolicy:
+          FunctionName:
+            Ref: FileSyncerFunction
+      Type: STANDARD
+      DefinitionUri: ../../statemachine/rearc_data_quest.asl.json
+  AwsSamAutoDependencyLayerNestedStack:
+    DeletionPolicy: Delete
+    Metadata:
+      CreatedBy: AWS SAM CLI sync command
+    Properties:
+      TemplateURL: /home/danoventa/dev/jh-2024/rearc-data-quest/.aws-sam/auto-dependency-layer/adl_nested_template.yaml
+    Type: AWS::CloudFormation::Stack
+Outputs:
+  SyncAndReportStateMachineArn:
+    Description: Data Sync and Reporting State Machine ARN
+    Value:
+      Ref: SyncAndReportStateMachine
+  SyncAndReportStateMachineRoleArn:
+    Description: IAM Role created for the sync and reporting state machine.
+    Value:
+      Fn::GetAtt:
+      - SyncAndReportStateMachineRole
+      - Arn

@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS SAM CLI Nested Stack for Auto Dependency Layer Creation
+Metadata:
+  SamCliInfo: 1.118.0
+  key: AWS SAM CLI sync command
+Outputs:
+  FileSyncerFunction1731c9a4DepLayer:
+    Value:
+      Ref: FileSyncerFunction1731c9a4DepLayer
+Resources:
+  FileSyncerFunction1731c9a4DepLayer:
+    Metadata:
+      CreatedBy: AWS SAM CLI sync command
+    Properties:
+      CompatibleRuntimes:
+      - python3.12
+      ContentUri: /home/danoventa/dev/jh-2024/rearc-data-quest/.aws-sam/auto-dependency-layer/FileSyncerFunction1731c9a4DepLayer
+      Description: Auto created layer for dependencies of function FileSyncerFunction
+      LayerName: dan-rearc-dataqu9b78e804-FileSyncerFunction1731c9a4-DepLayer
+      RetentionPolicy: Delete
+    Type: AWS::Serverless::LayerVersion
+Transform: AWS::Serverless-2016-10-31
