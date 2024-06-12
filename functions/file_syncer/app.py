@@ -1,6 +1,5 @@
-from random import randint
-import file_syncer
 from file_syncer import FileSyncer
+import os
 
 def lambda_handler(event, context):
     """The lambda function is sync'ing files from a file structure website to an S3 bucket. 
@@ -19,7 +18,7 @@ def lambda_handler(event, context):
         list: presigned_urls for the files available in the S3 bucket
     """
     host_url = "https://download.bls.gov"
-    s3_bucket = "noventa-scratch-bucket"
+    s3_bucket = os.getenv("REARCQUESTBUCKET_BUCKET_NAME")
     sync = FileSyncer(host_url, s3_bucket)
 
     sync.extract_productivity_cost_data()

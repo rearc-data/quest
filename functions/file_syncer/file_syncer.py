@@ -23,7 +23,7 @@ class FileSyncer:
         self.files_to_delete = set()
         
         s3 = boto3.resource('s3')
-        self.bucket = s3.Bucket( "noventa-scratch-bucket")
+        self.bucket = s3.Bucket(s3_bucket)
         self.s3_bucket = s3_bucket
         self.s3_client = boto3.client('s3', 'us-east-2', config=Config(signature_version='s3v4'))
         self.ses_client = boto3.client('ses', 'us-east-2')
@@ -57,7 +57,7 @@ class FileSyncer:
         self.files_to_delete = s3_files - files_pending_upload
 
         # If an updated file is in files_to_add, remove it from files_up_to_date and add it to files_to_delete
-        for add_date, add_file in self.files_to_add:
+        for _, add_file in self.files_to_add:
             for update_date, update_file in self.files_up_to_date.copy():
                 if add_file == update_file:
                     self.files_up_to_date.remove((update_date, update_file))

@@ -1,10 +1,58 @@
 {
 	"Comment": "A state machine that does mock stock trading.",
-	"StartAt": "SyncFiles",
+	"StartAt": "Parallel",
 	"States": {
-		"SyncFiles": {
+		"Parallel": {
+			"Type": "Parallel",
+			"Branches": [
+				{
+					"StartAt": "ProductivityandCostSyncFiles",
+					"States": {
+						"ProductivityandCostSyncFiles": {
+							"Type": "Task",
+							"Resource": "${FileSyncerFunctionArn}",
+							"Retry": [
+								{
+									"ErrorEquals": [
+										"States.TaskFailed"
+									],
+									"IntervalSeconds": 15,
+									"MaxAttempts": 5,
+									"BackoffRate": 1.5
+								}
+							],
+							"Parameters": {},
+							"End": true
+						}
+					}
+				},
+				{
+					"StartAt": "CensusDataSync",
+					"States": {
+						"CensusDataSync": {
+							"Type": "Task",
+							"Resource": "${DataSyncerFunctionArn}",
+							"Retry": [
+								{
+									"ErrorEquals": [
+										"States.TaskFailed"
+									],
+									"IntervalSeconds": 15,
+									"MaxAttempts": 5,
+									"BackoffRate": 1.5
+								}
+							],
+							"Parameters": {},
+							"End": true
+						}
+					}
+				}
+			],
+			"Next": "Report"
+		},
+		"Report": {
 			"Type": "Task",
-			"Resource": "${FileSyncerFunctionArn}",
+			"Resource": "${ReporterFunctionArn}",
 			"Retry": [
 				{
 					"ErrorEquals": [

@@ -10,9 +10,9 @@ The code for this application will differ based on the runtime, but the path to 
 
 AWS Toolkit For Visual Studio Code supports local debugging for serverless applications through VS Code's debugger. Since this application was created by the AWS Toolkit, launch configurations for all included handlers have been generated and can be found in the menu next to the Run button:
 
-* dan-rearc-dataquest:StockTradingStateMachine
-* dan-rearc-dataquest:StockCheckerFunction (python3.12)
-* dan-rearc-dataquest:StockSellerFunction (python3.12)
+* dan-rearc-dataquest:SyncAndReportStateMachine
+* dan-rearc-dataquest:FileSyncerFunction (python3.12)
+* dan-rearc-dataquest:DataSyncerFunction (python3.12)
 * dan-rearc-dataquest:StockBuyerFunction (python3.12)
 * dan-rearc-dataquest:TransactionTable
 

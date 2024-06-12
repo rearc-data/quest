@@ -15,8 +15,8 @@ Resources:
       Timeout: 60
       Environment:
         Variables:
-          REARCHQUESTBUCKET_BUCKET_NAME: !Ref RearchQuestBucket
-          REARCHQUESTBUCKET_BUCKET_ARN: !GetAtt RearchQuestBucket.Arn
+          REARCQUESTBUCKET_BUCKET_NAME: !Ref RearcQuestBucket
+          REARCQUESTBUCKET_BUCKET_ARN: !GetAtt RearcQuestBucket.Arn
       Policies:
         - Statement:
             - Effect: Allow
@@ -42,26 +42,28 @@ Resources:
                 - s3:PutObjectRetention
                 - s3:RestoreObject
               Resource:
-                - !Sub arn:${AWS::Partition}:s3:::${RearchQuestBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${RearchQuestBucket}/*
+                - !Sub arn:${AWS::Partition}:s3:::${RearcQuestBucket}
+                - !Sub arn:${AWS::Partition}:s3:::${RearcQuestBucket}/*
         - Statement:
             - Effect: Allow
               Action:
                 - ses:SendEmail
-              Resource: 
-                - "*"
+              Resource:
+                - '*'
 
   SyncAndReportStateMachine:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
     Properties:
       DefinitionSubstitutions:
         FileSyncerFunctionArn: !GetAtt FileSyncerFunction.Arn
+        DataSyncerFunctionArn: !GetAtt DataSyncerFunction.Arn
+        ReporterFunctionArn: !GetAtt ReporterFunction.Arn
       Events:
         DailySyncSchedule:
           Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
           Properties:
             Description: Daily Schedule to sync data and report
-            Enabled: false # This schedule is disabled by default to avoid incurring charges.
+            Enabled: true # This schedule is disabled by default to avoid incurring charges.
             Schedule: rate(1 day)
       Policies:
         # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
@@ -73,10 +75,110 @@ Resources:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: noventa@hey.com
-  RearchQuestBucket:
+  DataSyncerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/data_syncer
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Environment:
+        Variables:
+          REARCQUESTBUCKET_BUCKET_NAME: !Ref RearcQuestBucket
+          REARCQUESTBUCKET_BUCKET_ARN: !GetAtt RearcQuestBucket.Arn
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:GetObjectAcl
+                - s3:GetObjectLegalHold
+                - s3:GetObjectRetention
+                - s3:GetObjectTorrent
+                - s3:GetObjectVersion
+                - s3:GetObjectVersionAcl
+                - s3:GetObjectVersionForReplication
+                - s3:GetObjectVersionTorrent
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListBucketVersions
+                - s3:ListMultipartUploadParts
+                - s3:AbortMultipartUpload
+                - s3:DeleteObject
+                - s3:DeleteObjectVersion
+                - s3:PutObject
+                - s3:PutObjectLegalHold
+                - s3:PutObjectRetention
+                - s3:RestoreObject
+              Resource:
+                - !Sub arn:${AWS::Partition}:s3:::${RearcQuestBucket}
+                - !Sub arn:${AWS::Partition}:s3:::${RearcQuestBucket}/*
+  DataSyncerFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DataSyncerFunction}
+  ReporterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/reporter
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ReportingQueue:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt ReportingQueue.Arn
+            BatchSize: 1
+      Environment:
+        Variables:
+          REARCQUESTBUCKET_BUCKET_NAME: !Ref RearcQuestBucket
+          REARCQUESTBUCKET_BUCKET_ARN: !GetAtt RearcQuestBucket.Arn
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:GetObjectAcl
+                - s3:GetObjectLegalHold
+                - s3:GetObjectRetention
+                - s3:GetObjectTorrent
+                - s3:GetObjectVersion
+                - s3:GetObjectVersionAcl
+                - s3:GetObjectVersionForReplication
+                - s3:GetObjectVersionTorrent
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListBucketVersions
+                - s3:ListMultipartUploadParts
+                - s3:AbortMultipartUpload
+                - s3:DeleteObject
+                - s3:DeleteObjectVersion
+                - s3:PutObject
+                - s3:PutObjectLegalHold
+                - s3:PutObjectRetention
+                - s3:RestoreObject
+              Resource:
+                - !Sub arn:${AWS::Partition}:s3:::${RearcQuestBucket}
+                - !Sub arn:${AWS::Partition}:s3:::${RearcQuestBucket}/*
+  ReporterFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ReporterFunction}
+  ReportingQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 180
+  RearcQuestBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-rearchque-${AWS::AccountId}
+      BucketName: !Sub ${AWS::StackName}-rearcques-${AWS::AccountId}
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -85,10 +187,18 @@ Resources:
       PublicAccessBlockConfiguration:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-  RearchQuestBucketBucketPolicy:
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:*
+            Queue: !GetAtt ReportingQueue.Arn
+          - Event: s3:ObjectRemoved:*
+            Queue: !GetAtt ReportingQueue.Arn
+    DependsOn:
+      - RearcQuestBucketToReportingQueuePermission
+  RearcQuestBucketBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref RearchQuestBucket
+      Bucket: !Ref RearcQuestBucket
       PolicyDocument:
         Id: RequireEncryptionInTransit
         Version: '2012-10-17'
@@ -97,11 +207,27 @@ Resources:
             Action: '*'
             Effect: Deny
             Resource:
-              - !GetAtt RearchQuestBucket.Arn
-              - !Sub ${RearchQuestBucket.Arn}/*
+              - !GetAtt RearcQuestBucket.Arn
+              - !Sub ${RearcQuestBucket.Arn}/*
             Condition:
               Bool:
                 aws:SecureTransport: 'false'
+  RearcQuestBucketToReportingQueuePermission:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt ReportingQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Sub arn:${AWS::Partition}:s3:::${AWS::StackName}-rearcques-${AWS::AccountId}
+      Queues:
+        - !Ref ReportingQueue
 
 Outputs:
   # SyncAndReportStateMachine is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
@@ -113,3 +239,15 @@ Outputs:
   SyncAndReportStateMachineRoleArn:
     Description: IAM Role created for the sync and reporting state machine.
     Value: !GetAtt SyncAndReportStateMachineRole.Arn
+  RearcQuestBucketBucketArn:
+    Description: RearcQuestBucketBucketArn
+    Value: !GetAtt RearcQuestBucket.Arn
+  DataSyncerFunctionArn:
+    Description: DataSyncerFunctionArn
+    Value: !GetAtt DataSyncerFunction.Arn
+  FileSyncerFunctionArn:
+    Description: FileSyncerFunctionArn
+    Value: !GetAtt FileSyncerFunction.Arn
+  ReporterFunctionArn:
+    Description: ReporterFunctionArn
+    Value: !GetAtt ReporterFunction.Arn

@@ -1,7 +1,0 @@
-sector_code	sector_name	display_level	selectable	sort_sequence
-3000	Manufacturing	0	T	4
-3100	Manufacturing, Durable Goods	1	T	5
-3200	Manufacturing, Nondurable Goods	1	T	6
-8400	Business	0	T	2
-8500	Nonfarm Business	0	T	1
-8800	Nonfinancial Corporations	0	T	3
