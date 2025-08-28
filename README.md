@@ -122,3 +122,95 @@ How could you add information to your programmatic access requests to let BLS co
 
 ### Q. Can I use AI to assist me?
 You may use AI as a reference tool but there will be a strong expectation to exhibit the same expertise and understanding from your submission in your interview. In addition we encourage you to be open about any usage! Please document what you used, what your prompts were, how it helped, what it got wrong, etc.
+
+
+
+Here is solution for Part1 - Part3 :
+
+import pandas as pd
+import requests
+import io
+import json
+
+# -----------------------------
+# Part 1: Load BLS dataset
+# -----------------------------
+bls_url = "https://download.bls.gov/pub/time.series/pr/pr.data.0.Current"
+print("Downloading BLS dataset...")
+r = requests.get(bls_url, headers={"User-Agent": "preeti.dangi@gmail.com"})
+r.raise_for_status()
+
+# Read into Pandas (tab-delimited)
+bls_df = pd.read_csv(io.StringIO(r.text), sep="\t", engine="python")
+bls_df.columns = bls_df.columns.str.strip()  
+bls_df["value"] = pd.to_numeric(bls_df["value"], errors="coerce")
+bls_df = bls_df.dropna(subset=["series_id", "year", "period", "value"])
+bls_df["year"] = bls_df["year"].astype(int)
+print("\nBLS Data Sample:")
+print(bls_df.head())
+
+
+# -----------------------------
+# Part 2: Load Population dataset
+# -----------------------------
+pop_url = "https://honolulu-api.datausa.io/tesseract/data.jsonrecords?cube=acs_yg_total_population_1&drilldowns=Year%2CNation&locale=en&measures=Population"
+print("\nDownloading Population dataset...")
+r = requests.get(pop_url)
+r.raise_for_status()
+pop_json = r.json()
+
+pop_df = pd.DataFrame(pop_json["data"])
+pop_df = pop_df.rename(columns={"Year": "year", "Population": "Population"})
+pop_df["year"] = pop_df["year"].astype(int)
+pop_df["Population"] = pop_df["Population"].astype(int)
+print("\nPopulation Data Sample:")
+print(pop_df.head())
+
+# -----------------------------
+# Task 1: Mean & Std Dev Population 2013-2018
+# -----------------------------
+pop_filtered = pop_df[(pop_df["year"] >= 2013) & (pop_df["year"] <= 2018)]
+mean_pop = pop_filtered["Population"].mean()
+std_pop = pop_filtered["Population"].std()
+
+print("\n--- Population Statistics (2013-2018) ---")
+print(f"Mean Population: {mean_pop:,.0f}")
+print(f"Std Dev Population: {std_pop:,.0f}")
+
+# -----------------------------
+# Task 2: Best Year per Series
+# -----------------------------
+bls_sum = bls_df.groupby(["series_id", "year"])["value"].sum().reset_index()
+best_years = bls_sum.loc[bls_sum.groupby("series_id")["value"].idxmax()].reset_index(drop=True)
+
+print("\n--- Best Year per Series ID ---")
+print(best_years.head())
+
+# -----------------------------
+# Task 3: Join BLS with Population
+# Automatically select a valid series_id & period to avoid empty DataFrame
+# -----------------------------
+valid_series = bls_df.groupby("series_id")["period"].apply(lambda x: x.mode()[0]).reset_index()
+example_series_id = valid_series.iloc[0]["series_id"]
+example_period = valid_series.iloc[0]["period"]
+
+bls_subset = bls_df[(bls_df["series_id"] == example_series_id) & (bls_df["period"] == example_period)]
+joined_report = pd.merge(bls_subset, pop_df, on="year", how="left")
+joined_report = joined_report[["series_id", "year", "period", "value", "Population"]]
+
+print(f"\n--- Joined Report ({example_series_id}, {example_period}) ---")
+print(joined_report.head())
+
+# -----------------------------
+# Optional: Save reports to CSV
+# -----------------------------
+best_years.to_csv("best_years_report.csv", index=False)
+joined_report.to_csv("joined_report.csv", index=False)
+
+
+Part 4 - For Part 4 (AWS CloudFormation, AWS CDK, or Terraform), I did not have access to an AWS environment to build and test the pipeline, so I was unable to implement this section.
+
+
+
+
+
