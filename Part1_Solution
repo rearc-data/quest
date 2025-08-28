@@ -1,0 +1,71 @@
+import boto3
+import requests
+import hashlib
+import io
+from bs4 import BeautifulSoup
+
+S3_BUCKET = "my-data-pipeline-bucket"
+BLS_BASE_URL = "https://download.bls.gov/pub/time.series/pr/"
+USER_AGENT = "preeti.dangi@gmail.com"  # 👈 must include contact info
+
+s3 = boto3.client("s3")
+
+def list_bls_files():
+    """Scrape available files from the BLS PR dataset directory."""
+    r = requests.get(BLS_BASE_URL, headers={"User-Agent": USER_AGENT})
+    r.raise_for_status()
+    soup = BeautifulSoup(r.text, "html.parser")
+    files = [a["href"] for a in soup.find_all("a") if a["href"].startswith("pr.")]
+    return files
+
+def list_s3_files():
+    """List files in S3 bucket under bls/ prefix."""
+    objs = s3.list_objects_v2(Bucket=S3_BUCKET, Prefix="bls/")
+    return [o["Key"] for o in objs.get("Contents", [])]
+
+def sync_file_to_s3(filename):
+    """Download file, checksum it, and upload if new/changed."""
+    url = BLS_BASE_URL + filename
+    r = requests.get(url, headers={"User-Agent": USER_AGENT})
+    r.raise_for_status()
+    data = r.content
+
+    # checksum for versioning
+    checksum = hashlib.md5(data).hexdigest()
+    key = f"bls/{filename}-{checksum}"
+
+    # check if already exists
+    existing_keys = list_s3_files()
+    if key in existing_keys:
+        print(f"✔ Skipping {filename}, already exists.")
+        return
+
+    # upload to S3
+    s3.put_object(Bucket=S3_BUCKET, Key=key, Body=data)
+    print(f"✅ Uploaded: {filename} as {key}")
+
+def delete_removed_files(bls_files, s3_files):
+    """Delete from S3 any file that no longer exists in source."""
+    valid_prefixes = {f"bls/{f}" for f in bls_files}
+    to_delete = [k for k in s3_files if not any(k.startswith(p) for p in valid_prefixes)]
+    for key in to_delete:
+        s3.delete_object(Bucket=S3_BUCKET, Key=key)
+        print(f"Deleted stale file: {key}")
+
+def sync_bls_to_s3():
+    print("Fetching available files from BLS...")
+    bls_files = list_bls_files()
+    print(f"Found {len(bls_files)} source files.")
+
+    print("Fetching existing S3 files...")
+    s3_files = list_s3_files()
+
+    # upload/update
+    for f in bls_files:
+        sync_file_to_s3(f)
+
+    # delete stale
+    delete_removed_files(bls_files, s3_files)
+
+if __name__ == "__main__":
+    sync_bls_to_s3()
