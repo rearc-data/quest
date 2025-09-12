@@ -1,0 +1,53 @@
+Documentation to navigate the quest::
+
+Part 1 ::
+============
+Step 1: Republish the dataset to S3
+The source URL is a directory listing (https://download.bls.gov/pub/time.series/pr/), which contains multiple text files.
+You’ll need to:
+Scrape the file list (since it’s an Apache-style directory index).
+Download each file locally (or stream).
+Upload to your S3 bucket.
+
+Step 2: Keep S3 in Sync with Source
+The requirements mean:
+Detect new files → If new files are added to the BLS site, copy them to S3.
+Detect deleted files → If a file disappears from the site, remove it from S3.
+Avoid duplicates → Don’t re-upload files if they haven’t changed.
+
+The typical way is:
+Maintain a manifest of checksums (MD5/SHA) or compare LastModified headers.
+Compare source file list vs S3 file list.
+
+Part2 ::
+=============
+Step 1: Call the API (https://honolulu-api.datausa.io/...).
+Step 2:Save response as JSON file.
+Step 3:Upload it into your S3 bucket (with a dynamic filename, e.g., timestamp-based).
+
+Part3 : 
+===========
+Step1 : Load CSV and JSON datasets
+Step2 : Calculate Mean and Standard Deviation of population (2013 to 2018)
+step3 : Best Year per Series ID (max sum of quarterly values)
+Step4 : Join Population + Time-Series (for specific series/period)
+
+Part4:
+==============
+Step 1: Didnot create data pipelines due to no accessibility to the AWS environment. 
+Step 2: Create a folder lambda_src/ with two files: ingest_lambda.py and report_lambda.py.
+#ingest_lambda.py
+This lambda:
+-Scrapes https://download.bls.gov/pub/time.series/pr/ for file links (no BeautifulSoup — uses a regex).
+-Downloads each file, calculates MD5, compares to S3 ETag (if present) to avoid re-uploading.
+-Deletes S3 objects that are no longer present on the source site (keeps bucket in sync).
+-Calls the DataUSA API and writes the JSON to S3 under the datausa-population/ prefix with timestamp.
+ #report_lambda.py
+This lambda:
+-Is triggered by SQS messages containing S3 event notifications (S3 -> SQS).
+-For each S3 created JSON (the DataUSA file), reads it from S3 and also reads pr.data.0.Current CSV from S3.
+-Uses pandas to compute:
+--Mean and stddev of US population for years 2013–2018.
+--For each series_id, the year with maximum sum of value (sum of quarters).
+--For PRS30006032 and Q01, produces a joined row with population for that year.
+-Logs results to CloudWatch.                                      
